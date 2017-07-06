@@ -1,0 +1,5 @@
+{{object.gname}}
+{{object.gtype}}
+{{object.gunti}}
+{{object.gintro}}
+{{object.gdescription}}

@@ -10,48 +10,70 @@
 	<script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
 	<script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="/static/js/slide.js"></script>
+    <script>
+        $(function(){
+            $('#login').click(function(){
+                var str=location.pathname;
+                $(this).prop('href', $(this).prop('href')+'?lastpath='+str)
+            })
+        })
+
+    </script>
     {% block header %}
     {% endblock header %}
 </head>
 <body>
+    {% if top != 0  %}
 	<div class="header_con">
 		<div class="header">
 			<div class="welcome fl">欢迎来到天天生鲜!</div>
 			<div class="fr">
-				<div class="login_info fl">
-					欢迎您：<em>张 山</em>
+                {% if name %}
+				<div class="login_info fl" style="display: block">
+					欢迎您：<em>{{name}}</em>
 				</div>
 				<div class="login_btn fl">
-					<a href="user/login.html">登录</a>
 					<span>|</span>
-					<a href="user/register.html">注册</a>
+					<a href="/user/quiter/">退出</a>
 				</div>
+                {% else %}
+                <div class="login_btn fl">
+					<a href="/user/login/" id="login">登录</a>
+					<span>|</span>
+					<a href="/user/register/">注册</a>
+				</div>
+                {% endif %}
 				<div class="user_link fl">
 					<span>|</span>
-					<a href="user/user_center_info.html">用户中心</a>
+					<a href="/user/info/">用户中心</a>
 					<span>|</span>
-					<a href="cart/cart.html">我的购物车</a>
+					<a href="/cart/mycart/">我的购物车</a>
 					<span>|</span>
-					<a href="user/user_center_order.html">我的订单</a>
+					<a href="/user/uorder_1/">我的订单</a>
 				</div>
 			</div>
 		</div>
 	</div>
 
 	<div class="search_bar clearfix">
-		<a href="index.html" class="logo fl"><img src="images/logo.png"></a>
+		<a href="/" class="logo fl"><img src="/static/images/logo.png"></a>
         {% block subname %}
+        {% if left_display == 1 %}
         <div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;用户中心</div>
+        {% endif %}
         {% endblock subname %}
-		<div class="search_con fl">
-			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
-			<input type="button" class="input_btn fr" name="" value="搜索">
-		</div>
+		<form method="get"  action="/search/"  target="_blank" class="search_con {% if left_display == 1 %}fr{% else %}fl{% endif %} ">
+			<input type="text" class="input_text fl" name="q" placeholder="搜索商品">
+			<input type="submit" class="input_btn fr" name="" value="搜索">
+		</form>
+        {% if left_display != 1 %}
 		<div class="guest_cart fr">
-			<a href="#" class="cart_name fl">我的购物车</a>
-			<div class="goods_count fl" id="show_count">1</div>
+			<a href="/cart/mycart/" class="cart_name fl">我的购物车</a>
+			<div class="goods_count fl" id="show_count">{{ cartcount|default:0 }}</div>
 		</div>
+        {% endif %}
 	</div>
+    {% endif %}
     {% block body %}{% endblock body %}
 	<div class="footer">
 		<div class="foot_link">

@@ -48,8 +48,17 @@ $(function(){
 		}
 		else
 		{
-			$('#user_name').next().hide();
-			error_name = false;
+			$.post('/user/check_user/', {'name': $('#user_name').val(),'csrfmiddlewaretoken':$('input:first').val()}, function(data){
+				if(data.code == 1){
+					$('#user_name').next().html('用户名已存在')
+					$('#user_name').next().show();
+					error_name = true;
+				}
+				else if(data.code == 0){
+					$('#user_name').next().hide();
+					error_name = false;
+				}
+			})
 		}
 	}
 

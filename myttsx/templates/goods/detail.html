@@ -5,6 +5,7 @@
 {% block header%}
 	<script type="text/javascript">
 		$(function(){
+		    //加入购物车
 			var $add_x = $('#add_cart').offset().top;
 			var $add_y = $('#add_cart').offset().left;
 
@@ -13,16 +14,64 @@
 
 			$(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
 			$('#add_cart').click(function(){
-				$(".add_jump").stop().animate({
-					'left': $to_y+7,
-					'top': $to_x+7},
-					"fast", function() {
-						$(".add_jump").fadeOut('fast',function(){
-							$('#show_count').html(2);
-						});
+			    data = {
+			        'gid':{{ good.id }},
+                    'count': $('.num_show').val()
+                }
+                $.get('/cart/goodtocart/',data , function(data){
+                    if(data.name_error==1){
+                        location.href=location.protocol+'//'+location.hostname+':'+location.port+'/user/login/?lastpath='+location.pathname
+                    }
+                    else if(data.name_error==0){
+                        if(data.code==1){
+                            $(".add_jump").stop().animate({
+                                'left': $to_y+7,
+                                'top': $to_x+7},
+                                "fast", function() {
+                                    $(".add_jump").fadeOut('fast',function(){
+                                        if(data.is_in_cart==0){
+                                            $('#show_count').html(parseInt($('#show_count').html())+1);
+                                        }
+                                        $(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
 
-				});
+                                    });
+
+                            });
+                        }
+                    }
+                })
+
 			})
+            //商品数量加减
+            $('.add').click(function(){
+                $('.num_show').val(parseInt($('.num_show').val())+1).blur()
+            })
+            $('.minus').click(function(){
+                $('.num_show').val(parseInt($('.num_show').val())-1).blur()
+            })
+            $('.num_show').blur(function(){
+                var num = $(this).val()
+                if(num<1){
+                    num = 1
+                    alert('商品数量最小１')
+                }
+                else if(num>100){
+                    num = 100
+                    alert('商品数量最大100')
+                }
+                num = Math.floor(num)
+                $(this).val(num)
+                var goodprice = parseFloat($('.show_pirze em').html())
+                var sum = (goodprice*num).toFixed(2)
+                $('.total em').html(sum+'元')
+
+            });
+            //立即购买提交订单
+            $('.buy_btn').click(function(){
+                count = $('.num_show').val()
+                gid = $('.goods_detail_con').prop('id')
+                $(this).prop('href','/order/place_order/?count='+count+'&gid='+gid)
+            })
 		})
 	</script>
 {% endblock header%}
@@ -33,12 +82,12 @@
 				<h1>全部商品分类</h1>	
 				<span></span>			
 				<ul class="subnav">
-					<li><a href="#" class="fruit">新鲜水果</a></li>
-					<li><a href="#" class="seafood">海鲜水产</a></li>
-					<li><a href="#" class="meet">猪牛羊肉</a></li>
-					<li><a href="#" class="egg">禽类蛋品</a></li>
-					<li><a href="#" class="vegetables">新鲜蔬菜</a></li>
-					<li><a href="#" class="ice">速冻食品</a></li>
+                    <li><a href="/goods/list_1_1_1/" class="fruit">新鲜水果</a></li>
+                    <li><a href="/goods/list_2_1_1/" class="seafood">海鲜水产</a></li>
+                    <li><a href="/goods/list_3_1_1/" class="meet">猪牛羊肉</a></li>
+                    <li><a href="/goods/list_4_1_1/" class="egg">禽类蛋品</a></li>
+                    <li><a href="/goods/list_5_1_1/" class="vegetables">新鲜蔬菜</a></li>
+                    <li><a href="/goods/list_6_1_1/" class="ice">速冻食品</a></li>
 				</ul>
 			</div>
 			<ul class="navlist fl">
@@ -54,20 +103,20 @@
 	<div class="breadcrumb">
 		<a href="#">全部分类</a>
 		<span>></span>
-		<a href="#">新鲜水果</a>
+		<a href="#">{{ good.gtype }}</a>
 		<span>></span>
 		<a href="#">商品详情</a>
 	</div>
 
-	<div class="goods_detail_con clearfix">
-		<div class="goods_detail_pic fl"><img src="images/goods_detail.jpg"></div>
+	<div class="goods_detail_con clearfix" id="{{ good.id }}">
+		<div class="goods_detail_pic fl"><img src="/static/media/{{ good.gimg }}"></div>
 
 		<div class="goods_detail_list fr">
-			<h3>大兴大棚草莓</h3>
-			<p>草莓浆果柔软多汁，味美爽口，适合速冻保鲜贮藏。草莓速冻后，可以保持原有的色、香、味，既便于贮藏，又便于外销。</p>
+			<h3>{{ good.gname }}</h3>
+			<p>{{ good.gintro }}</p>
 			<div class="prize_bar">
-				<span class="show_pirze">¥<em>16.80</em></span>
-				<span class="show_unit">单  位：500g</span>
+				<span class="show_pirze">¥<em>{{ good.gprice }}</em></span>
+				<span class="show_unit">单  位：{{ good.gunti }}</span>
 			</div>
 			<div class="goods_num clearfix">
 				<div class="num_name fl">数 量：</div>
@@ -77,7 +126,7 @@
 					<a href="javascript:;" class="minus fr">-</a>	
 				</div> 
 			</div>
-			<div class="total">总价：<em>16.80元</em></div>
+			<div class="total">总价：<em>{{ good.gprice }}元</em></div>
 			<div class="operate_btn">
 				<a href="javascript:;" class="buy_btn">立即购买</a>
 				<a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>				
@@ -90,16 +139,13 @@
 			<div class="new_goods">
 				<h3>新品推荐</h3>
 				<ul>
+                    {% for item in moodslist %}
 					<li>
-						<a href="#"><img src="images/goods/goods001.jpg"></a>
-						<h4><a href="#">进口柠檬</a></h4>
-						<div class="prize">￥3.90</div>
+						<a href="#"><img src="/static/media/{{ item.gimg }}"></a>
+						<h4><a href="#">{{ item.gname }}</a></h4>
+						<div class="prize">￥{{ item.gprice }}</div>
 					</li>
-					<li>
-						<a href="#"><img src="images/goods/goods002.jpg"></a>
-						<h4><a href="#">玫瑰香葡萄</a></h4>
-						<div class="prize">￥16.80</div>
-					</li>
+                    {% endfor %}
 				</ul>
 			</div>
 		</div>
@@ -113,7 +159,7 @@
 			<div class="tab_content">
 				<dl>
 					<dt>商品详情：</dt>
-					<dd>草莓采摘园位于北京大兴区 庞各庄镇四各庄村 ，每年1月-6月面向北京以及周围城市提供新鲜草莓采摘和精品礼盒装草莓，草莓品种多样丰富，个大香甜。所有草莓均严格按照有机标准培育，不使用任何化肥和农药。草莓在采摘期间免洗可以直接食用。欢迎喜欢草莓的市民前来采摘，也欢迎各大单位选购精品有机草莓礼盒，有机草莓礼盒是亲朋馈赠、福利送礼的最佳选择。 </dd>
+					<dd>{{ good.gdescription }} </dd>
 				</dl>
 			</div>
 

@@ -5,19 +5,45 @@
 {% block header %}
 	<script type="text/javascript">
 		$(function(){
+		    //提交订单自定义弹窗
 			$('#order_btn').click(function() {
-				localStorage.setItem('order_finish',2);
+				var paymethod = $('.pay_style_con input:checked').val()
+				var carts = ''
+				$('.goods_list_td').each(function(){
+				    carts += $(this).prop('id') +'*'
+				})
+			    $.post('/order/create_order/',{'csrfmiddlewaretoken':$('.common_title').next().val(), 'carts':carts, 'paymethod': paymethod},function(data){
+			        if(data.code==1){
+						localStorage.setItem('order_finish',2);
 
-				$('.popup_con').fadeIn('fast', function() {
+						$('.popup_con').fadeIn('fast', function() {
 
-					setTimeout(function(){
-						$('.popup_con').fadeOut('fast',function(){
-							window.location.href = '../index.html';
+							setTimeout(function(){
+								$('.popup_con').fadeOut('fast',function(){
+									window.location.pathname = '/';
+								});
+							},3000)
 						});
-					},3000)
+					}
+				})
 
-				});
 			});
+			//价格更新函数
+            function changeinfo(){
+                var goodsnum = $('.goods_list_td').length;
+                $('.total_goods_count em').html(goodsnum);
+                var sum_price = 0
+                $('.goods_list_td').each(function(){
+                    var count = $(this).children('.col06').html()
+                    var price = parseFloat($(this).children('.col05').html().split('元')[0])
+                    var sum = (count*price).toFixed(2)
+                    sum_price +=count*price
+                    $(this).children('.col07').html(sum)
+                })
+                $('.total_pay b').html(sum_price.toFixed(2)+'元')
+                $('.total_goods_count b').html(sum_price.toFixed(2)+'元');
+            }
+            changeinfo()
 		})
 	</script>
 {% endblock header %}
@@ -26,32 +52,31 @@
 {% endblock subname %}
 {% block body %}
 	<h3 class="common_title">确认收货地址</h3>
-
+	{% csrf_token %}
 	<div class="common_list_con clearfix">
 		<dl>
 			<dt>寄送到：</dt>
-			<dd><input type="radio" name="" checked="">北京市 海淀区 东北旺西路8号中关村软件园 （李思 收） 182****7528</dd>
+			<dd><input type="radio" name="" checked="">{{ u.address }} （{{ u.name }} 收） {{ u.phone }}</dd>
 		</dl>
-		<a href="../user/user_center_site.html" class="edit_site">编辑收货地址</a>
+		<a href="/user/usite/" class="edit_site">编辑收货地址</a>
 
 	</div>
-	
+	{% load filters %}
 	<h3 class="common_title">支付方式</h3>	
 	<div class="common_list_con clearfix">
 		<div class="pay_style_con clearfix">
-			<input type="radio" name="pay_style" checked>
+			<input type="radio" name="pay_style" checked value="1">
 			<label class="cash">货到付款</label>
-			<input type="radio" name="pay_style">
+			<input type="radio" name="pay_style" value="2">
 			<label class="weixin">微信支付</label>
-			<input type="radio" name="pay_style">
+			<input type="radio" name="pay_style" value="3">
 			<label class="zhifubao"></label>
-			<input type="radio" name="pay_style">
+			<input type="radio" name="pay_style" value="4">
 			<label class="bank">银行卡支付</label>
 		</div>
 	</div>
 
 	<h3 class="common_title">商品列表</h3>
-	
 	<div class="common_list_con clearfix">
 		<ul class="goods_list_th clearfix">
 			<li class="col01">商品名称</li>
@@ -60,24 +85,17 @@
 			<li class="col04">数量</li>
 			<li class="col05">小计</li>		
 		</ul>
-		<ul class="goods_list_td clearfix">
-			<li class="col01">1</li>			
-			<li class="col02"><img src="images/goods/goods012.jpg"></li>
-			<li class="col03">奇异果</li>
-			<li class="col04">500g</li>
-			<li class="col05">25.80元</li>
-			<li class="col06">1</li>
-			<li class="col07">25.80元</li>	
+        {% for cart in carts %}
+		<ul class="goods_list_td clearfix" id="{{cart.id}}">
+			<li class="col01">{{ forloop.counter }}</li>
+			<li class="col02"><img src="/static/media/{{ cart.cgood.gimg }}"></li>
+			<li class="col03">{{ cart.cgood.gname }}</li>
+			<li class="col04">{{ cart.cgood.gunti }}</li>
+			<li class="col05">{{ cart.cgood.gprice }}元</li>
+			<li class="col06">{{ cart.gcount }}</li>
+			<li class="col07">{{ cart.cgood.gprice }}元</li>
 		</ul>
-		<ul class="goods_list_td clearfix">
-			<li class="col01">2</li>			
-			<li class="col02"><img src="images/goods/goods003.jpg"></li>
-			<li class="col03">大兴大棚草莓</li>
-			<li class="col04">500g</li>
-			<li class="col05">16.80元</li>
-			<li class="col06">1</li>
-			<li class="col07">16.80元</li>	
-		</ul>
+        {% endfor %}
 	</div>
 
 	<h3 class="common_title">总金额结算</h3>
