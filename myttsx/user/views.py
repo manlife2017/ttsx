@@ -108,7 +108,7 @@ def info(request):
     u_id = request.session.get('u_id', 0)
     u = UserInfo.objects.get(id__exact=u_id)
     browselists = request.COOKIES.get('browselists', '')
-    lists = browselists.split('*')
+    lists = browselists.split('*')[:-1]
     glists = []
     for i in lists:
         g = GoodsInfo.goods.filter(id=i)[0]
