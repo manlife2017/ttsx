@@ -44,20 +44,35 @@
 					</tbody>
 				</table>
 				{% endfor %}
+			{% load filters %}
 				<div class="pagenation">
+					<a href="/user/uorder_1">首页</a>
+
 					{% if page.has_previous %}
 					<a href="/user/uorder_{{ page.previous_page_number }}/"><上一页</a>
 					{% endif %}
-					{% for index in index_list %}
+
+					{% if page.number > 3 and page.paginator.num_pages > 5 %}
+					<a href="javascript:;" >...</a>
+					{% endif %}
+
+					{% for index in index_list|list_splice:page.number %}
 					{% if page.number == index %}
 						<a href="/user/uorder_{{ index }}/" class="active">{{ index }}</a>
 					 {% else %}
 						<a href="/user/uorder_{{ index }}/" >{{ index }}</a>
 					{% endif %}
 					{% endfor %}
+
+					{% if page.number > 3 and  page.number|add:2 < page.paginator.num_pages %}
+					<a href="javascript:;" >...</a>
+					{% endif %}
+
 					{% if page.has_next %}
 					<a href="/user/uorder_{{ page.next_page_number }}/">下一页></a>
 					{% endif %}
+
+					<a href="/user/uorder_{{page.paginator.num_pages}}/">尾页</a>
 				</div>
 		</div>
 	</div>

@@ -11,12 +11,14 @@
 	<script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="/static/js/slide.js"></script>
     <script>
+		/*
         $(function(){
             $('#login').click(function(){
                 var str=location.pathname;
                 $(this).prop('href', $(this).prop('href')+'?lastpath='+str)
             })
         })
+        */
 
     </script>
     {% block header %}
@@ -28,9 +30,9 @@
 		<div class="header">
 			<div class="welcome fl">欢迎来到天天生鲜!</div>
 			<div class="fr">
-                {% if name %}
+                {% if request.session.u_id %}
 				<div class="login_info fl" style="display: block">
-					欢迎您：<em>{{name}}</em>
+					欢迎您：<em>{{request.session.u_name}}</em>
 				</div>
 				<div class="login_btn fl">
 					<span>|</span>
