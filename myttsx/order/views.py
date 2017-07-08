@@ -26,7 +26,7 @@ def place_order(request):
     if gid != '':
         count = request.GET.get('count', 0)
         g = GoodsInfo.goods.filter(pk=gid)[0]
-        c = CartInfo.objects.filter(cgood__exact=g, cuser__exact=u)
+        c = CartInfo.objects.filter(cgood__exact=g, cuser__exact=u, isdelete=False)
         if len(c) > 0:
             cart = c[0]
             cart.gcount += int(count)

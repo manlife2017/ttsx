@@ -11,9 +11,9 @@ from django.core.paginator import Paginator, Page
 
 # Create your views here.
 def login(request):
-    lastpath = request.GET.get('lastpath', '')
-    if lastpath != '':
-        request.session['lastpath'] = lastpath
+    # lastpath = request.GET.get('lastpath', '')
+    # if lastpath != '':
+    #     request.session['lastpath'] = lastpath
     name = request.COOKIES.get('uname', '')
     content = {
         'name': name,
@@ -73,14 +73,16 @@ def check_login(request):
         if u[0].passwd == sha_pwd:
             request.session['u_name'] = u[0].name
             request.session['u_id'] = u[0].id
-            path = request.session.get('lastpath', '')
-            if path != '':
-                print(path)
-                del request.session['lastpath']
-                res = redirect(path)
-
-            else:
-                res = redirect('/user/info/')
+            # path = request.session.get('lastpath', '')
+            # if path != '':
+            #     print(path)
+            #     del request.session['lastpath']
+            #     res = redirect(path)
+            #
+            # else:
+            path = request.session.get('lastpath')
+            print(path)
+            res = redirect(path)
             if checkbox != 0:
                 res.set_cookie('uname', name, expires=datetime.datetime.now()+ datetime.timedelta(days=14))
             return res

@@ -36,7 +36,7 @@ def list(request, gid, pid, omethod):
         glists = GoodsInfo.goods.filter(gtype_id=gid).order_by('-gprice')
     elif omethod == '3':
         glists = GoodsInfo.goods.filter(gtype_id=gid).order_by('-gmoods')
-    paginator = Paginator(glists, 10)
+    paginator = Paginator(glists, 1)
     page = paginator.page(pid)
     index_list = paginator.page_range
     p_list = page.object_list
@@ -45,6 +45,7 @@ def list(request, gid, pid, omethod):
         'plist': p_list,
         'blist': index_list,
         'page': page,
+        'gid': gid,
         'gtitle': gt_title,
         'omethod': int(omethod),
         'moodslist': moodslist,

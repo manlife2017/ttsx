@@ -7,13 +7,13 @@ from django.http import HttpResponse
 def checked(fn):
     def check_login(request, *args, **kwargs):
         try:
-            u_id = request.session.get('u_id', 0)
-            u_name = request.session.get('u_name', 0)
-            if u_name != 0:
+            u_id = request.session.get('u_id', '')
+            u_name = request.session.get('u_name', '')
+            if u_name != '':
                 return fn(request, *args, **kwargs)
             else:
                 res = redirect('/user/login/')
-                request.session['lastpath'] = request.get_full_path()
+                # request.session['lastpath'] = request.get_full_path()
                 return res
         except Exception as res:
             print(res)
